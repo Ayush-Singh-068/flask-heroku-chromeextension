@@ -7,12 +7,9 @@ from gensim.summarization.summarizer import summarize
 from app.models.response_model import response_model_from_dict
 from config.constants import *
 
-# OpenAI API Key
-openai.api_key = config('api_key', default=OPENAI_API_KEY)
-
-
-def extract_text(url):
-    page = requests.get(url)
+def extract_text(url, api_key):
+    headers = {'apiKey': api_key}
+    page = requests.get(url, headers=headers)
     page.raise_for_status()
     soup = BeautifulSoup(page.text, "html.parser")
     return soup.text
@@ -45,9 +42,9 @@ def get_gpt3_summary(summary, isPoints):
     responseModel = response_model_from_dict(response)
     return responseModel.choices[0].text
 
-
-def get_website_summary(url, isPoints):
-    text = extract_text(url)
+def get_website_summary(url, isPoints, api_key):
+    text = extract_text(url, api_key)
     summary = summarize_text(text)
-    # return 'Summary:\n{0}'.format(summary)
+    print('Key={0}'.format(api_key))
+    return 'Summary:\n {0}'.format(summary)
     return get_gpt3_summary(summary, isPoints)
